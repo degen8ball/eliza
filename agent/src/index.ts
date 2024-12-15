@@ -5,6 +5,7 @@ import { DirectClientInterface } from "@ai16z/client-direct";
 import { DiscordClientInterface } from "@ai16z/client-discord";
 import { TelegramClientInterface } from "@ai16z/client-telegram";
 import { TwitterClientInterface } from "@ai16z/client-twitter";
+import { WordpressClientInterface } from "@ai16z/client-wordpress";
 import { FarcasterAgentClient } from "@ai16z/client-farcaster";
 import {
     AgentRuntime,
@@ -344,6 +345,11 @@ export async function initializeClients(
         TwitterClientInterface.enableSearch = !isFalsish(getSecret(character, "TWITTER_SEARCH_ENABLE"));
         const twitterClients = await TwitterClientInterface.start(runtime);
         clients.push(twitterClients);
+    }
+
+    if (clientTypes.includes("wordpress")) {
+        const wordpressClient = await WordpressClientInterface.start(runtime);
+        clients.push(wordpressClient);
     }
 
     if (clientTypes.includes("farcaster")) {

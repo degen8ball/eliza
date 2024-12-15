@@ -607,6 +607,7 @@ export enum Clients {
     TWITTER = "twitter",
     TELEGRAM = "telegram",
     FARCASTER = "farcaster",
+    WORDPRESS = "wordpress",
 }
 /**
  * Configuration for an agent character
@@ -653,6 +654,7 @@ export type Character = {
         discordVoiceHandlerTemplate?: string;
         discordShouldRespondTemplate?: string;
         discordMessageHandlerTemplate?: string;
+        wordpressPostTemplate?: string;
     };
 
     /** Character biography */

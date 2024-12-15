@@ -24,6 +24,7 @@
         "@ai16z/client-discord": "workspace:*",
         "@ai16z/client-farcaster": "workspace:*",
         "@ai16z/client-telegram": "workspace:*",
+        "@ai16z/client-wordpress": "workspace:*",
         "@ai16z/client-twitter": "workspace:*",
         "@ai16z/eliza": "workspace:*",
         "@ai16z/plugin-0g": "workspace:*",
