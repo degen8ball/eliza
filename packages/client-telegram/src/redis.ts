@@ -1,31 +1,46 @@
 import Redis from 'ioredis';
-import Bull from 'bull';
 import { elizaLogger } from '@ai16z/eliza';
 
-const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
+export class RedisService {
+    private static instance: RedisService;
+    public redis: Redis;
+    public subscriber: Redis;
+    public REDIS_URL: string;
 
-// Create Redis client
-export const redis = new Redis(REDIS_URL);
+    private constructor() {
+        elizaLogger.log("📡 Initializing Redis Service...");
+        this.REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379';
 
-// Create Bull queue for balance checks
-export const balanceCheckQueue = new Bull('balance-checks', REDIS_URL, {
-  defaultJobOptions: {
-    removeOnComplete: true,
-    removeOnFail: true,
-  }
-});
+        // Initialize Redis clients
+        this.redis = new Redis(this.REDIS_URL);
+        this.subscriber = new Redis(this.REDIS_URL);
 
-// Error handling
-redis.on('error', (error) => {
-  elizaLogger.error('Redis connection error:', error);
-});
+        this.setupErrorHandlers();
+        this.setupGracefulShutdown();
+        elizaLogger.log("✅ Redis Service initialized");
+    }
 
-redis.on('connect', () => {
-  elizaLogger.success('Redis connected successfully');
-});
+    private setupErrorHandlers(): void {
+        this.redis.on('error', (error) => {
+            elizaLogger.error('Redis connection error:', error);
+        });
 
-// Optional: graceful shutdown
-process.on('SIGTERM', async () => {
-  await redis.quit();
-  await balanceCheckQueue.close();
-});
+        this.subscriber.on('error', (error) => {
+            elizaLogger.error('Redis subscriber error:', error);
+        });
+    }
+
+    private setupGracefulShutdown(): void {
+        process.on('SIGTERM', async () => {
+            await this.redis.quit();
+            await this.subscriber.quit();
+        });
+    }
+
+    public static getInstance(): RedisService {
+        if (!RedisService.instance) {
+            RedisService.instance = new RedisService();
+        }
+        return RedisService.instance;
+    }
+}
