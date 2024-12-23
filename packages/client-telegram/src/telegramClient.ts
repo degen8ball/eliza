@@ -4,6 +4,7 @@ import { MessageManager } from "./messageManager.ts";
 import { getOrCreateRecommenderInBe } from "./getOrCreateRecommenderInBe.ts";
 import { commands } from "./commands";
 import { redis } from "./redis";
+import { SentimentService } from './sentiment';
 
 export class TelegramClient {
     private bot: Telegraf<Context>;
@@ -18,6 +19,7 @@ export class TelegramClient {
         elizaLogger.log("📱 Constructing new TelegramClient...");
         this.runtime = runtime;
         this.bot = new Telegraf(botToken);
+        new SentimentService(this.bot);
         this.messageManager = new MessageManager(this.bot, this.runtime);
         this.backend = runtime.getSetting("BACKEND_URL");
         this.backendToken = runtime.getSetting("BACKEND_TOKEN");
