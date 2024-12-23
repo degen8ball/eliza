@@ -7,7 +7,7 @@ export const defaultCharacter: Character = {
     clients: [
         Clients.TWITTER,
         Clients.TELEGRAM,
-        //Clients.FARCASTER
+        Clients.FARCASTER
     ],
     modelProvider: ModelProviderName.ANTHROPIC,
     settings: {
