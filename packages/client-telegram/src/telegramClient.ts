@@ -24,6 +24,7 @@ export class TelegramClient {
         this.runtime = runtime;
         this.bot = new Telegraf(botToken);
         this.redisService = RedisService.getInstance();
+        this.balanceCheckService = BalanceCheckService.getInstance();
 
         this.messageManager = new MessageManager(this.bot, this.runtime);
         this.backend = runtime.getSetting("BACKEND_URL");
