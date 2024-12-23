@@ -1,4 +1,4 @@
-import Redis from "ioredis";
+import { redis } from './redis';
 import { Context, Telegraf } from "telegraf";
 
 interface SentimentUpdate {
@@ -15,15 +15,11 @@ interface SentimentUpdate {
 }
 
 export class SentimentService {
-    private subscriber: Redis;
     private bot: Telegraf<Context>;
     private privateGroupId: string;
 
     constructor(bot: Telegraf<Context>) {
         this.bot = bot;
-        this.subscriber = new Redis(
-            process.env.REDIS_URL || "redis://localhost:6379"
-        );
         this.privateGroupId = process.env.PRIVATE_GROUP_ID?.toString() || '';
         if (!this.privateGroupId) {
             console.warn('PRIVATE_GROUP_ID not set for sentiment updates');
@@ -32,8 +28,8 @@ export class SentimentService {
     }
 
     private setupSubscriber() {
-        this.subscriber.subscribe("sentiment:updates");
-        this.subscriber.on("message", async (channel, message) => {
+        redis.subscribe("sentiment:updates");
+        redis.on("message", async (channel, message) => {
             if (channel === "sentiment:updates") {
                 try {
                     const update: SentimentUpdate = JSON.parse(message);
