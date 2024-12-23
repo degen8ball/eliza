@@ -5,7 +5,9 @@ export const defaultCharacter: Character = {
     username: "degen8ball",
     plugins: [],
     clients: [
+        Clients.TWITTER,
         Clients.TELEGRAM,
+        Clients.FARCASTER
     ],
     modelProvider: ModelProviderName.ANTHROPIC,
     settings: {
