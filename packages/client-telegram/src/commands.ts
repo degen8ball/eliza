@@ -41,7 +41,7 @@ export const commands: CommandHandler[] = [
                 const sessionId = uuidv4();
                 const webAppUrl = runtime.getSetting("WEBAPP_URL");
 
-                const roomId = uuidv4();
+                const roomId = stringToUuid(uuidv4()) as UUID;
 
                 await runtime.messageManager.createMemory({
                     content: {
@@ -75,23 +75,30 @@ export const commands: CommandHandler[] = [
                         runtime.getSetting("PRIVATE_GROUP_ID");
                     if (privateGroupId) {
                         // Also unban from private group
-                        const formattedGroupId = privateGroupId.toString().startsWith('-100')
+                        const formattedGroupId = privateGroupId
+                            .toString()
+                            .startsWith("-100")
                             ? privateGroupId.toString()
-                            : `-100${privateGroupId.toString().replace('-', '')}`;
+                            : `-100${privateGroupId.toString().replace("-", "")}`;
 
                         // unban user so invite link works
-                        await ctx.telegram.unbanChatMember(formattedGroupId, parseInt(userId), { only_if_banned: true });
-
-                        const inviteLinkObj = await ctx.telegram.createChatInviteLink(
+                        await ctx.telegram.unbanChatMember(
                             formattedGroupId,
-                            {
-                                creates_join_request: false,
-                                member_limit: 1,
-                                name: `${username} (${userId})`,
-                                expire_date:
-                                    Math.floor(Date.now() / 1000) + 3600, // Link expires in 1 hour
-                            }
+                            parseInt(userId),
+                            { only_if_banned: true }
                         );
+
+                        const inviteLinkObj =
+                            await ctx.telegram.createChatInviteLink(
+                                formattedGroupId,
+                                {
+                                    creates_join_request: false,
+                                    member_limit: 1,
+                                    name: `${username} (${userId})`,
+                                    expire_date:
+                                        Math.floor(Date.now() / 1000) + 3600, // Link expires in 1 hour
+                                }
+                            );
                         inviteLink = inviteLinkObj.invite_link;
                     }
                 } catch (error) {
@@ -107,7 +114,6 @@ export const commands: CommandHandler[] = [
                         inviteUrl: inviteLink,
                         telegramId: userId,
                     });
-
                 } catch (error) {
                     elizaLogger.error(
                         "Error checking verification status:",
@@ -136,7 +142,10 @@ export const commands: CommandHandler[] = [
                 reply_markup: {
                     inline_keyboard: [
                         [
-                            { text: "Verify Account", callback_data: "verify_account" },
+                            {
+                                text: "Verify Account",
+                                callback_data: "verify_account",
+                            },
                             {
                                 text: "Get Support",
                                 url: "https://t.me/support",
