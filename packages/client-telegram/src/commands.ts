@@ -41,13 +41,13 @@ export const commands: CommandHandler[] = [
                 const sessionId = uuidv4();
                 const webAppUrl = runtime.getSetting("WEBAPP_URL");
 
+                const roomId = uuidv4();
+
                 await runtime.messageManager.createMemory({
                     content: {
                         text: `wallet_session: ${sessionId}`,
                     },
-                    roomId: (ctx.chat?.id.toString() +
-                        "-" +
-                        runtime.agentId) as UUID,
+                    roomId: roomId as UUID,
                     agentId: runtime.agentId,
                     userId: stringToUuid(userId) as UUID,
                 });
