@@ -1,5 +1,5 @@
 import { Context } from "telegraf";
-import { IAgentRuntime, elizaLogger } from "@ai16z/eliza";
+import { IAgentRuntime, elizaLogger, stringToUuid, UUID } from "@ai16z/eliza";
 import { v4 as uuidv4 } from "uuid";
 import { askServer } from "./utils";
 
@@ -11,8 +11,8 @@ export interface CommandHandler {
 
 export const commands: CommandHandler[] = [
     {
-        command: "verify",
-        description: "Verify by connecting a wallet",
+        command: "start",
+        description: "Start by connecting a wallet",
         handler: async (ctx: Context, runtime: IAgentRuntime) => {
             try {
                 const userId = ctx.from?.id.toString();
@@ -21,41 +21,47 @@ export const commands: CommandHandler[] = [
 
                 if (!userId) {
                     await ctx.reply(
-                        "Unable to verify: Could not identify user.",
+                        "Could not identify your user ID. Please try again."
+                    );
+                    return;
+                }
+                const sessionId = uuidv4();
+                const webAppUrl = runtime.getSetting("WEBAPP_URL");
+                // Check if we're already in a private chat
+                if (ctx.chat?.type === "private") {
+                    await ctx.reply(
+                        "Please connect your wallet to complete verification:",
                         {
                             reply_markup: {
                                 inline_keyboard: [
                                     [
                                         {
-                                            text: "Try Again",
-                                            callback_data: "verify_retry",
+                                            text: "Connect Wallet",
+                                            url: `${webAppUrl}/verify?session=${sessionId}`,
                                         },
                                     ],
                                 ],
                             },
                         }
                     );
-                    return;
-                }
-
-                const sessionId = uuidv4();
-                const webAppUrl = runtime.getSetting("WEBAPP_URL");
-
-                await ctx.reply(
-                    "Please connect your wallet to complete verification:",
-                    {
-                        reply_markup: {
-                            inline_keyboard: [
-                                [
-                                    {
-                                        text: "Connect Wallet",
-                                        url: `${webAppUrl}/verify?session=${sessionId}`,
-                                    },
+                } else {
+                    // If in group chat, ask user to start private chat first
+                    await ctx.reply(
+                        "Please start a private chat with me first by clicking the button below.",
+                        {
+                            reply_markup: {
+                                inline_keyboard: [
+                                    [
+                                        {
+                                            text: "Start Private Chat",
+                                            url: `https://t.me/${ctx.botInfo?.username}`,
+                                        },
+                                    ],
                                 ],
-                            ],
-                        },
-                    }
-                );
+                            },
+                        }
+                    );
+                }
 
                 // Get the invite link for the private group
                 let inviteLink = "";
@@ -132,8 +138,8 @@ export const commands: CommandHandler[] = [
                     inline_keyboard: [
                         [
                             {
-                                text: "Verify Account",
-                                callback_data: "verify_account",
+                                text: "Get Started",
+                                url: `https://t.me/${ctx.botInfo?.username}?start=verify`,
                             },
                             {
                                 text: "Get Support",
