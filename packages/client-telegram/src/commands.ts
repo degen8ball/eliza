@@ -1,5 +1,5 @@
 import { Context } from "telegraf";
-import { IAgentRuntime, elizaLogger, UUID, stringToUuid } from "@ai16z/eliza";
+import { IAgentRuntime, elizaLogger } from "@ai16z/eliza";
 import { v4 as uuidv4 } from "uuid";
 import { askServer } from "./utils";
 
@@ -40,17 +40,6 @@ export const commands: CommandHandler[] = [
 
                 const sessionId = uuidv4();
                 const webAppUrl = runtime.getSetting("WEBAPP_URL");
-
-                const roomId = stringToUuid(uuidv4()) as UUID;
-
-                await runtime.messageManager.createMemory({
-                    content: {
-                        text: `wallet_session: ${sessionId}`,
-                    },
-                    roomId: roomId as UUID,
-                    agentId: runtime.agentId,
-                    userId: stringToUuid(userId) as UUID,
-                });
 
                 await ctx.reply(
                     "Please connect your wallet to complete verification:",
